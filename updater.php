@@ -43,25 +43,6 @@ class EM_Updater {
 			$this->github_response = $response; // Set it to our property  
 		}
 	}
-	public function get_svn_info() {
-		$config_method = 'GET';
-		$config_userpass = 'jakewozniak:Edison3830!';
-		$config_headers[] = 'Accept: application/xml';
-		$config_datasource = 'projects.xml';
-		$config_address = 'pathfinders.unfuddle.com/svn/pathfinders_pf-social-grid/';
-		// Here we set up CURL to grab the data from Unfuddle
-		$chandle = curl_init();
-		curl_setopt($chandle, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($chandle, CURLOPT_URL, $config_address . $config_datasource);
-		curl_setopt($chandle, CURLOPT_HTTPHEADER, $config_headers);
-		curl_setopt($chandle, CURLOPT_USERPWD, $config_userpass);
-		curl_setopt($chandle, CURLOPT_CUSTOMREQUEST, $config_method);
-		$output = curl_exec($chandle);
-		curl_close($chandle);
-		$response = new SimpleXMLElement($output);
-		return $response;
-		//$this->unfuddle_response = $response; // Set it to our property
-	}
 	public function initialize() {
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'modify_transient' ), 10, 1 );
 		add_filter( 'plugins_api', array( $this, 'plugin_popup' ), 10, 3);

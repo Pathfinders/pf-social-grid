@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: PF Social Grid
-Version: 1.0.3
+Version: 1.0.4
 Author: Pathfinders Advertising
 Description: You know... social... stuff
 Author URI: http://www.pathfind.com

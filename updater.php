@@ -48,7 +48,7 @@ class EM_Updater {
 		$config_userpass = 'jakewozniak:Edison3830!';
 		$config_headers[] = 'Accept: application/xml';
 		$config_datasource = 'projects.xml';
-		$config_address = 'pathfinders.unfuddle.com/svn/pathfinders_pf-event-manager/';
+		$config_address = 'pathfinders.unfuddle.com/svn/pathfinders_pf-social-grid/';
 		// Here we set up CURL to grab the data from Unfuddle
 		$chandle = curl_init();
 		curl_setopt($chandle, CURLOPT_RETURNTRANSFER, true);

@@ -1,0 +1,39 @@
+.social-grid {
+	overflow:hidden;
+}
+.social-grid ul {
+  margin: 0;
+  padding: 0;
+}
+.social-grid a {
+	margin:0 !important;
+}
+.social-grid img.spacer {
+	width:100%;
+	height:auto;
+}
+.social-grid li {
+	display:block;
+	float:left;
+	background-size:cover;
+	position:relative;
+}
+.social-grid li span {
+	position:absolute;
+	left:.5em;
+	bottom:.5em;
+	color:#fff;
+	font-size:30px;
+}
+.social-grid > ul > li {
+	width:33.3333333333%;
+}
+.social-grid > ul > li > ul > li {
+	width:100%;
+}
+.social-grid > ul > li > ul > li > ul > li {
+	width:50%;
+}
+.social-grid li.double img {
+	margin-bottom: -51.5%;
+}

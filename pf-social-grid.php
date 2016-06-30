@@ -1,13 +1,24 @@
 <?php
 /*
 Plugin Name: PF Social Grid
-Version: 1.0.4
+Version: 1.0.0
 Author: Pathfinders Advertising
 Description: You know... social... stuff
 Author URI: http://www.pathfind.com
 */
 
 include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+
+/* Removes the middle part of a string */
+function delete_all_between($beginning, $end, $string) {
+	$beginningPos = strpos($string, $beginning);
+	$endPos = strpos($string, $end);
+	if ($beginningPos === false || $endPos === false) {
+		return $string;
+	}
+	$textToDelete = substr($string, $beginningPos, ($endPos + strlen($end)) - $beginningPos);
+	return str_replace($textToDelete, '', $string);
+}
 
 /* Notice of required plugins */
 add_action('admin_notices', 'showAdminMessages');
@@ -27,9 +38,12 @@ function showAdminMessages(){
 	}
 }
 
-/* Create the required ACF fields */
+/* Create the required ACF fields and Options page*/
 if(is_plugin_active('advanced-custom-fields-pro/acf.php')){
 	include_once(plugin_dir_path(__FILE__).'acf-fields.php');
+	if(function_exists('acf_add_options_page')) {
+		acf_add_options_page();
+	}
 }
 
 /* Include our updater file */
@@ -40,7 +54,8 @@ $updater->set_repository('pf-social-grid' ); // set repo
 $updater->initialize(); // initialize the updater
 
 /* Enqueue the stylesheet */
-wp_enqueue_style('myCSS', plugins_url( 'social_grid.css', __FILE__ ));
+wp_enqueue_style('social_grid', plugins_url( 'social_grid.css', __FILE__ ));
+wp_enqueue_style('pf_fa', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css');
 
 // Get Facebook Posts
 function fetch_facebook($args){
@@ -59,6 +74,21 @@ function fetch_facebook($args){
 	$url = 'https://graph.facebook.com/'.$screen_name.'/posts?'.$token.'&limit='.$count;
 	$results = json_decode(file_get_contents($url));
 	return $results;
+}
+
+// Get Facebook Username by ID
+function facebook_username($id){
+	if(!$id){
+		return false;
+	}
+	$facebook_api_client_id = get_field('facebook_api_client_id', 'option');
+	$facebook_api_client_secret = get_field('facebook_api_client_secret', 'option');	
+	$client_id = '';
+	$client_secret = '';
+	$token = file_get_contents('https://graph.facebook.com/oauth/access_token?client_id='.$facebook_api_client_id.'&client_secret='.$facebook_api_client_secret.'&grant_type=client_credentials');
+	$url = 'https://graph.facebook.com/'.$id.'/?fields=username&'.$token;
+	$results = json_decode(file_get_contents($url));
+	return $results->username;
 }
 
 // Get Twitter Posts
@@ -112,26 +142,25 @@ function get_social_grid_data(){
 	$facebook_accounts = get_field('facebook_accounts', 'option');
 	$twitter_accounts = get_field('twitter_accounts', 'option');
 	$instagram_accounts = get_field('instagram_accounts', 'option');
-	$instagram_access_tokens = get_field('instagram_access_tokens', 'option');
 	// Store the returned data in transient cache for 12 hours
 	if(!get_transient('facebook_data') && $facebook_accounts){
 		$facebook_data = array();
 		foreach($facebook_accounts as $facebook_account){
-			array_push($facebook_data,fetch_facebook(array('screen_name' => $facebook_account['account'],'count' => 10)));
+			array_push($facebook_data,fetch_facebook(array('screen_name' => $facebook_account['account'],'count' => 20)));
 		}
 		set_transient( 'facebook_data', base64_encode(serialize($facebook_data)), 60 * 60 * 12 );
 	}
 	if(!get_transient('twitter_data') && $twitter_accounts){
 		$twitter_data = array();
 		foreach($twitter_accounts as $twitter_account){
-			array_push($twitter_data,fetch_twitter(array('screen_name' => $twitter_account['account'],'count' => 10)));
+			array_push($twitter_data,fetch_twitter(array('screen_name' => $twitter_account['account'],'count' => 20)));
 		}
 		set_transient( 'twitter_data', base64_encode(serialize($twitter_data)), 60 * 60 * 12 );
 	}
 	if(!get_transient('instagram_data') && $instagram_access_tokens){
 		$instagram_data = array();
-		foreach($instagram_access_tokens as $instagram_access_token){
-			array_push($instagram_data,fetch_instagram(array('access_token' => $instagram_access_token['access_token'],'count' => 10)));
+		foreach($instagram_accounts as $instagram_account){
+			array_push($instagram_data,fetch_instagram(array('access_token' => $instagram_account['access_token'],'count' => 20)));
 		}
 		set_transient( 'instagram_data', base64_encode(serialize($instagram_data)), 60 * 60 * 12 );
 	}
@@ -142,12 +171,15 @@ function get_social_grid_data(){
 			foreach($facebook_sources as $facebook_posts){
 				if($facebook_posts->data){
 					foreach($facebook_posts->data as $facebook_post){
-						if($facebook_post->type == 'photo'){
+						//if($facebook_post->type == 'photo'){
+							$id = $facebook_post->from->id;
+							$screen_name = facebook_username($id);
+							$profile_image_url = "http://graph.facebook.com/".$id."/picture";
 							$post_date = strtotime($facebook_post->created_time);
 							$post_link = $facebook_post->link;
 							$post_image = getBigFacebookPhoto((string)$facebook_post->object_id);
-							array_push($all_posts,array('post_date' => $post_date, 'post_link' => $post_link, 'post_image' => $post_image, 'source' => 'facebook'));
-						}
+							array_push($all_posts,array('post_date' => $post_date, 'post_link' => $post_link, 'post_image' => $post_image, 'source' => 'facebook', 'profile_image_url' => $profile_image_url, 'screen_name' => $screen_name));
+						//}
 					}
 				}
 			}
@@ -157,13 +189,15 @@ function get_social_grid_data(){
 			foreach($twitter_sources as $twitter_posts){
 				if($twitter_posts){
 					foreach($twitter_posts as $twitter_post){
-						if($twitter_post->entities->media[0]->type == 'photo'){
+						//if($twitter_post->entities->media[0]->type == 'photo'){
 							$screen_name = ($twitter_post->retweeted_status ? $twitter_post->retweeted_status->user->screen_name : $twitter_post->user->screen_name);				
-							$post_date = strtotime($twitter_post->created_at);
+							$post_date = ($twitter_post->retweeted_status ? $twitter_post->retweeted_status->created_at : $twitter_post->created_at);
+							$post_image = ($twitter_post->entities->media[0]->media_url ? $twitter_post->entities->media[0]->media_url : NULL);
+							$post_text = delete_all_between("RT",":",$twitter_post->text);
+							$profile_image_url = ($twitter_post->retweeted_status ? $twitter_post->retweeted_status->user->profile_image_url : $twitter_post->user->profile_image_url);
 							$post_link = 'https://twitter.com/'.$screen_name.'/status/'.$twitter_post->id;
-							$post_image = $twitter_post->entities->media[0]->media_url;
-							array_push($all_posts,array('post_date' => $post_date, 'post_link' => $post_link, 'post_image' => $post_image, 'source' => 'twitter'));
-						}
+							array_push($all_posts,array('post_date' => $post_date, 'post_link' => $post_link, 'post_image' => $post_image, 'post_text' => $post_text, 'source' => 'twitter', 'profile_image_url' => $profile_image_url, 'screen_name' => $screen_name));
+						//}
 					}
 				}
 			}
@@ -176,7 +210,9 @@ function get_social_grid_data(){
 						$post_date = $instagram_post->created_time; 						
 						$post_link = $instagram_post->link;
 						$post_image = $instagram_post->images->standard_resolution->url;
-						array_push($all_posts,array('post_date' => $post_date, 'post_link' => $post_link, 'post_image' => $post_image, 'source' => 'instagram'));
+						$screen_name = $instagram_post->user->username;	
+						$profile_image_url= $instagram_post->user->profile_picture;
+						array_push($all_posts,array('post_date' => $post_date, 'post_link' => $post_link, 'post_image' => $post_image, 'source' => 'instagram', 'profile_image_url' => $profile_image_url, 'screen_name' => $screen_name));
 					}
 				}
 			}
@@ -196,29 +232,72 @@ function get_social_grid_data(){
 ?>
 <?php
 add_shortcode( 'social_grid', 'get_social_grid' );
-function get_social_grid(){
-	$social_grid_data = get_social_grid_data();
+function get_social_grid($atts){
+	$a = shortcode_atts( array(
+		'captions' => false,
+		'textblocks' => false,
+	), $atts );
+	$textblocks = array();
+	if($a['textblocks']){
+		$textblocks = explode(',', $a['textblocks']);
+	}
+ 	$social_grid_data = get_social_grid_data();
+	$social_grid_data_images = array();
+	$social_grid_data_text = array();
+	foreach($social_grid_data as $item){
+		if($item['post_image']){
+			$social_grid_data_images[] = $item;
+		}else if($item['post_text']){
+			$social_grid_data_text[] = $item;
+		}
+	}
+	$image_pointer = 0;
+	$text_pointer = 0;
 ?>
-<div class="social-grid">
+<div class="social-grid<?= $a['captions'] ? ' social-grid-captions' : '' ?>">
 	<ul class="innertube">
 		<li>
 			<ul>
 				<li>
 					<ul>
-						<li style="background-image:url(<?= $social_grid_data[0]['post_image'] ?>)"><a href="<?= $social_grid_data[0]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="icon-icon_<?= $social_grid_data[0]['source'] ?>_circle"></span></li>
-						<li style="background-image:url(<?= $social_grid_data[1]['post_image'] ?>)"><a href="<?= $social_grid_data[1]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="icon-icon_<?= $social_grid_data[1]['source'] ?>_circle"></span></li>
+						<?php if(in_array(1,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
+                        <li id="social-cell-1"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
+						<?php $text_pointer++; }else{ ?>
+                        <li id="social-cell-1" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
+                        <?php $image_pointer++; } ?>
+                        <?php if(in_array(2,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
+                        <li id="social-cell-2"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
+						<?php $text_pointer++; }else{ ?>
+                        <li id="social-cell-2" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
+                        <?php $image_pointer++; } ?>
 					</ul>
 				</li>
-				<li style="background-image:url(<?= $social_grid_data[2]['post_image'] ?>);padding:0 5px 5px 0;"><a href="<?= $social_grid_data[2]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="icon-icon_<?= $social_grid_data[2]['source'] ?>_circle"></span></li>
+				<?php if(in_array(3,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
+                <li id="social-cell-3"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
+                <?php $text_pointer++; }else{ ?>
+                <li id="social-cell-3" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
+                <?php $image_pointer++; } ?>
 			</ul>
 		</li>
 		<li>
 			<ul>
-				<li style="background-image:url(<?= $social_grid_data[3]['post_image'] ?>);padding:0 5px 5px 0;"><a href="<?= $social_grid_data[3]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="icon-icon_<?= $social_grid_data[3]['source'] ?>_circle"></span></li>
+				<?php if(in_array(4,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
+                <li id="social-cell-4"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
+                <?php $text_pointer++; }else{ ?>
+                <li id="social-cell-4" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
+                <?php $image_pointer++; } ?>
 				<li>
 					<ul>
-						<li style="background-image:url(<?= $social_grid_data[4]['post_image'] ?>)"><a href="<?= $social_grid_data[4]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="icon-icon_<?= $social_grid_data[4]['source'] ?>_circle"></span></li>
-						<li style="background-image:url(<?= $social_grid_data[5]['post_image'] ?>)"><a href="<?= $social_grid_data[5]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="icon-icon_<?= $social_grid_data[5]['source'] ?>_circle"></span></li>
+						<?php if(in_array(5,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
+                        <li id="social-cell-5"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
+                        <?php $text_pointer++; }else{ ?>
+                        <li id="social-cell-5" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
+                        <?php $image_pointer++; } ?>
+                        <?php if(in_array(6,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
+                        <li id="social-cell-6"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
+                        <?php $text_pointer++; }else{ ?>
+                        <li id="social-cell-6" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
+                        <?php $image_pointer++; } ?>
 					</ul>
 				</li>
 			</ul>
@@ -227,14 +306,34 @@ function get_social_grid(){
 			<ul>
 				<li>
 					<ul>
-						<li style="background-image:url(<?= $social_grid_data[6]['post_image'] ?>)"><a href="<?= $social_grid_data[6]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="icon-icon_<?= $social_grid_data[6]['source'] ?>_circle"></span></li>
-						<li style="background-image:url(<?= $social_grid_data[7]['post_image'] ?>)"><a href="<?= $social_grid_data[7]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="icon-icon_<?= $social_grid_data[7]['source'] ?>_circle"></span></li>
-						<li style="background-image:url(<?= $social_grid_data[8]['post_image'] ?>)"><a href="<?= $social_grid_data[8]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="icon-icon_<?= $social_grid_data[8]['source'] ?>_circle"></span></li>
-						<li style="background-image:url(<?= $social_grid_data[9]['post_image'] ?>)"><a href="<?= $social_grid_data[9]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="icon-icon_<?= $social_grid_data[9]['source'] ?>_circle"></span></li>
+						<?php if(in_array(7,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
+                        <li id="social-cell-7"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
+                        <?php $text_pointer++; }else{ ?>
+                        <li id="social-cell-7" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
+                        <?php $image_pointer++; } ?>
+                        <?php if(in_array(8,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
+                        <li id="social-cell-8"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
+                        <?php $text_pointer++; }else{ ?>
+                        <li id="social-cell-8" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
+                        <?php $image_pointer++; } ?>
+                        <?php if(in_array(9,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
+                        <li id="social-cell-9"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
+                        <?php $text_pointer++; }else{ ?>
+                        <li id="social-cell-9" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
+                        <?php $image_pointer++; } ?>
+                        <?php if(in_array(10,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
+                        <li id="social-cell-10"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
+                        <?php $text_pointer++; }else{ ?>
+                        <li id="social-cell-10" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
+                        <?php $image_pointer++; } ?>
 					</ul>
 				</li>
-				<li class="double" style="background-image:url(<?= $social_grid_data[10]['post_image'] ?>);padding:0 5px 5px 0;"><a href="<?= $social_grid_data[10]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="icon-icon_<?= $social_grid_data[10]['source'] ?>_circle"></span></li>
-			</ul>
+				<?php if(in_array(11,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
+                <li class="double" id="social-cell-11"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
+                <?php $text_pointer++; }else{ ?>
+                <li class="double" id="social-cell-11" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
+                <?php $image_pointer++; } ?>
+            </ul>
 		</li>
 	</ul>
 </div>

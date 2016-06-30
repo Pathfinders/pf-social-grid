@@ -2,8 +2,8 @@
 if( function_exists('acf_add_local_field_group') ):
 
 acf_add_local_field_group(array (
-	'key' => 'group_570e48d50c6d1_1',
-	'title' => 'Social Grid Options',
+	'key' => 'group_570e48d50c6d1',
+	'title' => 'Options',
 	'fields' => array (
 		array (
 			'key' => 'field_576a9e9d49b35',

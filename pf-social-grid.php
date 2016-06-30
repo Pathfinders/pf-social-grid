@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: PF Social Grid
-Version: 1.0.5
+Version: 1.0.0
 Author: Pathfinders Advertising
 Description: You know... social... stuff
 Author URI: http://www.pathfind.com
@@ -171,15 +171,13 @@ function get_social_grid_data(){
 			foreach($facebook_sources as $facebook_posts){
 				if($facebook_posts->data){
 					foreach($facebook_posts->data as $facebook_post){
-						//if($facebook_post->type == 'photo'){
-							$id = $facebook_post->from->id;
-							$screen_name = facebook_username($id);
-							$profile_image_url = "http://graph.facebook.com/".$id."/picture";
-							$post_date = strtotime($facebook_post->created_time);
-							$post_link = $facebook_post->link;
-							$post_image = getBigFacebookPhoto((string)$facebook_post->object_id);
-							array_push($all_posts,array('post_date' => $post_date, 'post_link' => $post_link, 'post_image' => $post_image, 'source' => 'facebook', 'profile_image_url' => $profile_image_url, 'screen_name' => $screen_name));
-						//}
+						$id = $facebook_post->from->id;
+						$screen_name = facebook_username($id);
+						$profile_image_url = "http://graph.facebook.com/".$id."/picture";
+						$post_date = strtotime($facebook_post->created_time);
+						$post_link = $facebook_post->link;
+						$post_image = getBigFacebookPhoto((string)$facebook_post->object_id);
+						array_push($all_posts,array('post_date' => $post_date, 'post_link' => $post_link, 'post_image' => $post_image, 'source' => 'facebook', 'profile_image_url' => $profile_image_url, 'screen_name' => $screen_name));
 					}
 				}
 			}
@@ -189,15 +187,13 @@ function get_social_grid_data(){
 			foreach($twitter_sources as $twitter_posts){
 				if($twitter_posts){
 					foreach($twitter_posts as $twitter_post){
-						//if($twitter_post->entities->media[0]->type == 'photo'){
-							$screen_name = ($twitter_post->retweeted_status ? $twitter_post->retweeted_status->user->screen_name : $twitter_post->user->screen_name);				
-							$post_date = ($twitter_post->retweeted_status ? $twitter_post->retweeted_status->created_at : $twitter_post->created_at);
-							$post_image = ($twitter_post->entities->media[0]->media_url ? $twitter_post->entities->media[0]->media_url : NULL);
-							$post_text = delete_all_between("RT",":",$twitter_post->text);
-							$profile_image_url = ($twitter_post->retweeted_status ? $twitter_post->retweeted_status->user->profile_image_url : $twitter_post->user->profile_image_url);
-							$post_link = 'https://twitter.com/'.$screen_name.'/status/'.$twitter_post->id;
-							array_push($all_posts,array('post_date' => $post_date, 'post_link' => $post_link, 'post_image' => $post_image, 'post_text' => $post_text, 'source' => 'twitter', 'profile_image_url' => $profile_image_url, 'screen_name' => $screen_name));
-						//}
+						$screen_name = ($twitter_post->retweeted_status ? $twitter_post->retweeted_status->user->screen_name : $twitter_post->user->screen_name);				
+						$post_date = ($twitter_post->retweeted_status ? $twitter_post->retweeted_status->created_at : $twitter_post->created_at);
+						$post_image = ($twitter_post->entities->media[0]->media_url ? $twitter_post->entities->media[0]->media_url : NULL);
+						$post_text = delete_all_between("RT",":",$twitter_post->text);
+						$profile_image_url = ($twitter_post->retweeted_status ? $twitter_post->retweeted_status->user->profile_image_url : $twitter_post->user->profile_image_url);
+						$post_link = 'https://twitter.com/'.$screen_name.'/status/'.$twitter_post->id;
+						array_push($all_posts,array('post_date' => $post_date, 'post_link' => $post_link, 'post_image' => $post_image, 'post_text' => $post_text, 'source' => 'twitter', 'profile_image_url' => $profile_image_url, 'screen_name' => $screen_name));
 					}
 				}
 			}

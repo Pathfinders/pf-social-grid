@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: PF Social Grid
-Version: 1.0.6
+Version: 1.0.7
 Author: Pathfinders Advertising
 Description: You know... social... stuff
 Author URI: http://www.pathfind.com
@@ -249,88 +249,112 @@ function get_social_grid($atts){
 	}
 	$image_pointer = 0;
 	$text_pointer = 0;
+	$html = '';
+	$html .= '<div class="social-grid'.($a['captions'] ? ' social-grid-captions' : '').'">';
+		$html .= '<ul class="innertube">';
+			$html .= '<li>';
+				$html .= '<ul>';
+					$html .= '<li>';
+						$html .= '<ul>';
+						if(in_array(1,$textblocks) && $social_grid_data_text[$text_pointer]){
+							$html .= '<li id="social-cell-1"><a href="'.$social_grid_data_text[$text_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span>'.$social_grid_data_text[$text_pointer]['post_text'].'</span></span><span class="label"><span class="fa fa-'.$social_grid_data_text[$text_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data[$text_pointer]['profile_image_url'].'" />@'.$social_grid_data[$text_pointer]['screen_name'].'</span></span></li>';
+							$text_pointer++;
+						}else{
+							$html .= '<li id="social-cell-1" style="background-image:url('.$social_grid_data_images[$image_pointer]['post_image'].')"><a href="'.$social_grid_data_images[$image_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-'.$social_grid_data_images[$image_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data_images[$image_pointer]['profile_image_url'].'" />@'.$social_grid_data_images[$image_pointer]['screen_name'].'</span></span></li>';
+							$image_pointer++;
+						}
+						if(in_array(2,$textblocks) && $social_grid_data_text[$text_pointer]){
+							$html .= '<li id="social-cell-2"><a href="'.$social_grid_data_text[$text_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span>'.$social_grid_data_text[$text_pointer]['post_text'].'</span></span><span class="label"><span class="fa fa-'.$social_grid_data_text[$text_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data[$text_pointer]['profile_image_url'].'" />@'.$social_grid_data[$text_pointer]['screen_name'].'</span></span></li>';
+							$text_pointer++;
+						}else{
+							$html .= '<li id="social-cell-2" style="background-image:url('.$social_grid_data_images[$image_pointer]['post_image'].')"><a href="'.$social_grid_data_images[$image_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-'.$social_grid_data_images[$image_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data_images[$image_pointer]['profile_image_url'].'" />@'.$social_grid_data_images[$image_pointer]['screen_name'].'</span></span></li>';
+							$image_pointer++;
+						}
+					$html .= '</ul>';
+				$html .= '</li>';
+				if(in_array(3,$textblocks) && $social_grid_data_text[$text_pointer]){
+					$html .= '<li id="social-cell-3"><a href="'.$social_grid_data_text[$text_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span>'.$social_grid_data_text[$text_pointer]['post_text'].'</span></span><span class="label"><span class="fa fa-'.$social_grid_data_text[$text_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data[$text_pointer]['profile_image_url'].'" />@'.$social_grid_data[$text_pointer]['screen_name'].'</span></span></li>';
+					$text_pointer++;
+				}else{
+					$html .= '<li id="social-cell-3" style="background-image:url('.$social_grid_data_images[$image_pointer]['post_image'].')"><a href="'.$social_grid_data_images[$image_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-'.$social_grid_data_images[$image_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data_images[$image_pointer]['profile_image_url'].'" />@'.$social_grid_data_images[$image_pointer]['screen_name'].'</span></span></li>';
+					$image_pointer++;
+				}
+				$html .= '</ul>';
+			$html .= '</li>';
+			$html .= '<li>';
+				$html .= '<ul>';
+					if(in_array(4,$textblocks) && $social_grid_data_text[$text_pointer]){
+						$html .= '<li id="social-cell-4"><a href="'.$social_grid_data_text[$text_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span>'.$social_grid_data_text[$text_pointer]['post_text'].'</span></span><span class="label"><span class="fa fa-'.$social_grid_data_text[$text_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data[$text_pointer]['profile_image_url'].'" />@'.$social_grid_data[$text_pointer]['screen_name'].'</span></span></li>';
+						$text_pointer++;
+					}else{
+						$html .= '<li id="social-cell-4" style="background-image:url('.$social_grid_data_images[$image_pointer]['post_image'].')"><a href="'.$social_grid_data_images[$image_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-'.$social_grid_data_images[$image_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data_images[$image_pointer]['profile_image_url'].'" />@'.$social_grid_data_images[$image_pointer]['screen_name'].'</span></span></li>';
+						$image_pointer++;
+					}
+					$html .= '<li>';
+						$html .= '<ul>';
+						if(in_array(5,$textblocks) && $social_grid_data_text[$text_pointer]){
+							$html .= '<li id="social-cell-5"><a href="'.$social_grid_data_text[$text_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span>'.$social_grid_data_text[$text_pointer]['post_text'].'</span></span><span class="label"><span class="fa fa-'.$social_grid_data_text[$text_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data[$text_pointer]['profile_image_url'].'" />@'.$social_grid_data[$text_pointer]['screen_name'].'</span></span></li>';
+							$text_pointer++;
+						}else{
+							$html .= '<li id="social-cell-5" style="background-image:url('.$social_grid_data_images[$image_pointer]['post_image'].')"><a href="'.$social_grid_data_images[$image_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-'.$social_grid_data_images[$image_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data_images[$image_pointer]['profile_image_url'].'" />@'.$social_grid_data_images[$image_pointer]['screen_name'].'</span></span></li>';
+							$image_pointer++;
+						}
+						if(in_array(6,$textblocks) && $social_grid_data_text[$text_pointer]){
+							$html .= '<li id="social-cell-6"><a href="'.$social_grid_data_text[$text_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span>'.$social_grid_data_text[$text_pointer]['post_text'].'</span></span><span class="label"><span class="fa fa-'.$social_grid_data_text[$text_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data[$text_pointer]['profile_image_url'].'" />@'.$social_grid_data[$text_pointer]['screen_name'].'</span></span></li>';
+							$text_pointer++;
+						}else{
+							$html .= '<li id="social-cell-6" style="background-image:url('.$social_grid_data_images[$image_pointer]['post_image'].')"><a href="'.$social_grid_data_images[$image_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-'.$social_grid_data_images[$image_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data_images[$image_pointer]['profile_image_url'].'" />@'.$social_grid_data_images[$image_pointer]['screen_name'].'</span></span></li>';
+							$image_pointer++;
+						}
+						$html .= '</ul>';
+					$html .= '</li>';
+				$html .= '</ul>';
+			$html .= '</li>';
+			$html .= '<li>';
+				$html .= '<ul>';
+					$html .= '<li>';
+						$html .= '<ul>';
+						if(in_array(7,$textblocks) && $social_grid_data_text[$text_pointer]){
+							$html .= '<li id="social-cell-7"><a href="'.$social_grid_data_text[$text_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span>'.$social_grid_data_text[$text_pointer]['post_text'].'</span></span><span class="label"><span class="fa fa-'.$social_grid_data_text[$text_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data[$text_pointer]['profile_image_url'].'" />@'.$social_grid_data[$text_pointer]['screen_name'].'</span></span></li>';
+							$text_pointer++;
+						}else{
+							$html .= '<li id="social-cell-7" style="background-image:url('.$social_grid_data_images[$image_pointer]['post_image'].')"><a href="'.$social_grid_data_images[$image_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-'.$social_grid_data_images[$image_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data_images[$image_pointer]['profile_image_url'].'" />@'.$social_grid_data_images[$image_pointer]['screen_name'].'</span></span></li>';
+							$image_pointer++;
+						}
+						if(in_array(8,$textblocks) && $social_grid_data_text[$text_pointer]){
+							$html .= '<li id="social-cell-8"><a href="'.$social_grid_data_text[$text_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span>'.$social_grid_data_text[$text_pointer]['post_text'].'</span></span><span class="label"><span class="fa fa-'.$social_grid_data_text[$text_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data[$text_pointer]['profile_image_url'].'" />@'.$social_grid_data[$text_pointer]['screen_name'].'</span></span></li>';
+							$text_pointer++;
+						}else{
+							$html .= '<li id="social-cell-8" style="background-image:url('.$social_grid_data_images[$image_pointer]['post_image'].')"><a href="'.$social_grid_data_images[$image_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-'.$social_grid_data_images[$image_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data_images[$image_pointer]['profile_image_url'].'" />@'.$social_grid_data_images[$image_pointer]['screen_name'].'</span></span></li>';
+							$image_pointer++;
+						}
+						if(in_array(9,$textblocks) && $social_grid_data_text[$text_pointer]){
+							$html .= '<li id="social-cell-9"><a href="'.$social_grid_data_text[$text_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span>'.$social_grid_data_text[$text_pointer]['post_text'].'</span></span><span class="label"><span class="fa fa-'.$social_grid_data_text[$text_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data[$text_pointer]['profile_image_url'].'" />@'.$social_grid_data[$text_pointer]['screen_name'].'</span></span></li>';
+							$text_pointer++;
+						}else{
+							$html .= '<li id="social-cell-9" style="background-image:url('.$social_grid_data_images[$image_pointer]['post_image'].')"><a href="'.$social_grid_data_images[$image_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-'.$social_grid_data_images[$image_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data_images[$image_pointer]['profile_image_url'].'" />@'.$social_grid_data_images[$image_pointer]['screen_name'].'</span></span></li>';
+							$image_pointer++;
+						}
+						if(in_array(10,$textblocks) && $social_grid_data_text[$text_pointer]){
+							$html .= '<li id="social-cell-10"><a href="'.$social_grid_data_text[$text_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span>'.$social_grid_data_text[$text_pointer]['post_text'].'</span></span><span class="label"><span class="fa fa-'.$social_grid_data_text[$text_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data[$text_pointer]['profile_image_url'].'" />@'.$social_grid_data[$text_pointer]['screen_name'].'</span></span></li>';
+							$text_pointer++;
+						}else{
+							$html .= '<li id="social-cell-10" style="background-image:url('.$social_grid_data_images[$image_pointer]['post_image'].')"><a href="'.$social_grid_data_images[$image_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-'.$social_grid_data_images[$image_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data_images[$image_pointer]['profile_image_url'].'" />@'.$social_grid_data_images[$image_pointer]['screen_name'].'</span></span></li>';
+							$image_pointer++;
+						}
+						$html .= '</ul>';
+					$html .= '</li>';
+					if(in_array(11,$textblocks) && $social_grid_data_text[$text_pointer]){
+						$html .= '<li class="double" id="social-cell-11"><a href="'.$social_grid_data_text[$text_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span>'.$social_grid_data_text[$text_pointer]['post_text'].'</span></span><span class="label"><span class="fa fa-'.$social_grid_data_text[$text_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data[$text_pointer]['profile_image_url'].'" />@'.$social_grid_data[$text_pointer]['screen_name'].'</span></span></li>';
+						$text_pointer++;
+					}else{
+						$html .= '<li class="double" id="social-cell-11" style="background-image:url('.$social_grid_data_images[$image_pointer]['post_image'].')"><a href="'.$social_grid_data_images[$image_pointer]['post_link'].'" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-'.$social_grid_data_images[$image_pointer]['source'].'"></span><span class="text"><img src="'.$social_grid_data_images[$image_pointer]['profile_image_url'].'" />@'.$social_grid_data_images[$image_pointer]['screen_name'].'</span></span></li>';
+						$image_pointer++;
+					}
+					$html .= '</ul>';
+				$html .= '</li>';
+			$html .= '</ul>';
+		$html .= '</div>';
+		return $html;
+}
 ?>
-<div class="social-grid<?= $a['captions'] ? ' social-grid-captions' : '' ?>">
-	<ul class="innertube">
-		<li>
-			<ul>
-				<li>
-					<ul>
-						<?php if(in_array(1,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
-                        <li id="social-cell-1"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
-						<?php $text_pointer++; }else{ ?>
-                        <li id="social-cell-1" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
-                        <?php $image_pointer++; } ?>
-                        <?php if(in_array(2,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
-                        <li id="social-cell-2"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
-						<?php $text_pointer++; }else{ ?>
-                        <li id="social-cell-2" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
-                        <?php $image_pointer++; } ?>
-					</ul>
-				</li>
-				<?php if(in_array(3,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
-                <li id="social-cell-3"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
-                <?php $text_pointer++; }else{ ?>
-                <li id="social-cell-3" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
-                <?php $image_pointer++; } ?>
-			</ul>
-		</li>
-		<li>
-			<ul>
-				<?php if(in_array(4,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
-                <li id="social-cell-4"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
-                <?php $text_pointer++; }else{ ?>
-                <li id="social-cell-4" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
-                <?php $image_pointer++; } ?>
-				<li>
-					<ul>
-						<?php if(in_array(5,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
-                        <li id="social-cell-5"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
-                        <?php $text_pointer++; }else{ ?>
-                        <li id="social-cell-5" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
-                        <?php $image_pointer++; } ?>
-                        <?php if(in_array(6,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
-                        <li id="social-cell-6"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
-                        <?php $text_pointer++; }else{ ?>
-                        <li id="social-cell-6" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
-                        <?php $image_pointer++; } ?>
-					</ul>
-				</li>
-			</ul>
-		</li>
-		<li>
-			<ul>
-				<li>
-					<ul>
-						<?php if(in_array(7,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
-                        <li id="social-cell-7"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
-                        <?php $text_pointer++; }else{ ?>
-                        <li id="social-cell-7" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
-                        <?php $image_pointer++; } ?>
-                        <?php if(in_array(8,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
-                        <li id="social-cell-8"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
-                        <?php $text_pointer++; }else{ ?>
-                        <li id="social-cell-8" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
-                        <?php $image_pointer++; } ?>
-                        <?php if(in_array(9,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
-                        <li id="social-cell-9"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
-                        <?php $text_pointer++; }else{ ?>
-                        <li id="social-cell-9" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
-                        <?php $image_pointer++; } ?>
-                        <?php if(in_array(10,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
-                        <li id="social-cell-10"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
-                        <?php $text_pointer++; }else{ ?>
-                        <li id="social-cell-10" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
-                        <?php $image_pointer++; } ?>
-					</ul>
-				</li>
-				<?php if(in_array(11,$textblocks) && $social_grid_data_text[$text_pointer]){ ?>
-                <li class="double" id="social-cell-11"><a href="<?= $social_grid_data_text[$text_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="copy"><span><?= $social_grid_data_text[$text_pointer]['post_text'] ?></span></span><span class="label"><span class="fa fa-<?= $social_grid_data_text[$text_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data[$text_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data[$text_pointer]['screen_name'] ?></span></span></li>
-                <?php $text_pointer++; }else{ ?>
-                <li class="double" id="social-cell-11" style="background-image:url(<?= $social_grid_data_images[$image_pointer]['post_image'] ?>)"><a href="<?= $social_grid_data_images[$image_pointer]['post_link'] ?>" target="_blank" rel="external"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="spacer"></a><span class="label"><span class="fa fa-<?= $social_grid_data_images[$image_pointer]['source'] ?>"></span><span class="text"><img src="<?= $social_grid_data_images[$image_pointer]['profile_image_url'] ?>" />@<?= $social_grid_data_images[$image_pointer]['screen_name'] ?></span></span></li>
-                <?php $image_pointer++; } ?>
-            </ul>
-		</li>
-	</ul>
-</div>
-<?php } ?>
